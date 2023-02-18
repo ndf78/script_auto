@@ -21,7 +21,8 @@ function compter_nombre_ligne_max_scenario() {
   /////////////////////////////////////////////////////
   /// Generer nom keyword du parcours + page a creer///
   //////// ////////////////////////////////////////////
-  var keyword_assemblage = "    " + "[Tags]" + "    " + "log";
+  var keyword_assemblage_detail_a_la_suite = ""
+  var keyword_assemblage = "    " + "[Tags]" + "    " + "pas_de_tests";
   var cell_resultat = 2;
   var page_a_creer_enregistrer = ""
   for (i = 2; i < nombre_ligne_max_scenario + 1; i++) {
@@ -32,18 +33,23 @@ function compter_nombre_ligne_max_scenario() {
     var application = sheet.getCurrentCell().offset(0,-3).getValue();
     var page_application = sheet.getCurrentCell().offset(0,-2).getValue();
     var keyword_assemblage = keyword_assemblage + "\n" + "    " + application + "_" + page_application + "." + keyword;
+    var keyword_assemblage_detail = keyword + "\n" + "    " + "[Tags]" + "    " + "log" + "\n" + "    " + "constituer_le_keyword" + "\n";
+    var keyword_assemblage_detail_a_la_suite = keyword_assemblage_detail_a_la_suite + "\n" + keyword_assemblage_detail;
     Logger.log(keyword_assemblage);
+    Logger.log(keyword_assemblage_detail_a_la_suite);
     Logger.log(cell);
     Logger.log(cell_apres);
     if (cell != cell_apres) {
       Logger.log("diff");
       var pas_de_test_extraction = application + "_" + page_application + "." + cell
       var page_a_creer = application + "_" + page_application + ".resource"
-      var action = cell + "\n" + keyword_assemblage + "\n" + "    " + "[Teardown]" + "    " + "Builtin.Log To Console" + "    " + cell + "| status: ${KEYWORD_STATUS}${${/}n}";
+      var action = cell + "\n" + keyword_assemblage + "\n" + "    " + "[Teardown]" + "    " + "Builtin.Log To Console" + "    " + cell + " " + "| status: ${KEYWORD_STATUS}${${/}n}";
       Logger.log(pas_de_test_extraction);
       var sheet = spreadsheet.getSheetByName("script");
       spreadsheet.setActiveSheet(sheet);
-      var cell = sheet.getRange("D"+ cell_resultat).setValue(action);
+      var cell = sheet.getRange("F"+ cell_resultat).setValue(keyword_assemblage_detail_a_la_suite);
+      var cell = sheet.getRange("E"+ cell_resultat).setValue(action);
+      var cell = sheet.getRange("D"+ cell_resultat).setValue("\n" + action + "\n" + keyword_assemblage_detail_a_la_suite);
       var cell = sheet.getRange("C"+ cell_resultat).setValue(pas_de_test_extraction);
       if (page_a_creer_enregistrer != page_a_creer) {
         var cell = sheet.getRange("B"+ cell_resultat).setValue(page_a_creer);
@@ -52,7 +58,8 @@ function compter_nombre_ligne_max_scenario() {
       spreadsheet.setActiveSheet(sheet);
       var cell_resultat = cell_resultat + 1;
       var page_a_creer_enregistrer = page_a_creer;
-      var keyword_assemblage = "    " + "[Tags]" + "    " + "log";
+      var keyword_assemblage = "    " + "[Tags]" + "    " + "pas_de_tests";
+      var keyword_assemblage_detail_a_la_suite = ""
     };
     Logger.log("fin iteration " + i + "/" + nombre_ligne_max_scenario);
     Logger.log("--------------------------------------");
@@ -67,6 +74,6 @@ function main() {
 
 function nettoyer_la_feuille() {
   var spreadsheet = SpreadsheetApp.getActive();
-  spreadsheet.getRange("B2:D100").activate();
+  spreadsheet.getRange("B2:F100").activate();
   spreadsheet.getActiveRangeList().clear({contentsOnly: true, skipFilteredRows: true});
 };
